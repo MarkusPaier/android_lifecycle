@@ -18,6 +18,7 @@ package com.example.android.dessertpusher
 
 import android.content.ActivityNotFoundException
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
@@ -26,11 +27,13 @@ import androidx.core.app.ShareCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.LifecycleObserver
 import com.example.android.dessertpusher.databinding.ActivityMainBinding
+import timber.log.Timber
 
 class MainActivity : AppCompatActivity(), LifecycleObserver {
 
     private var revenue = 0
     private var dessertsSold = 0
+    private lateinit var dessertTimer: DessertTimer
 
     // Contains all the views
     private lateinit var binding: ActivityMainBinding
@@ -65,11 +68,19 @@ class MainActivity : AppCompatActivity(), LifecycleObserver {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        dessertTimer = DessertTimer(this.lifecycle)
+
+        Timber.i("onCreate called")
+
         // Use Data Binding to get reference to the views
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
 
         binding.dessertButton.setOnClickListener {
             onDessertClicked()
+        }
+
+        if (savedInstanceState != null) {
+            revenue = savedInstanceState.getInt("key_revenue", 0)
         }
 
         // Set the TextViews to the right values
@@ -145,5 +156,23 @@ class MainActivity : AppCompatActivity(), LifecycleObserver {
             R.id.shareMenuButton -> onShare()
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putInt("key_revenue", revenue)
+        Timber.i("onSaveInstanceState Called")
+    }
+
+    override fun onStart() {
+        super.onStart()
+        //Log.i("MainActivity", "onStart called")
+        //dessertTimer.startTimer()
+        Timber.i("onStart Called")
+    }
+
+    override fun onStop() {
+        super.onStop()
+        //dessertTimer.stopTimer()
     }
 }
